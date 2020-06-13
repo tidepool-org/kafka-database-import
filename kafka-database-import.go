@@ -121,10 +121,15 @@ func importDatabase() {
 	conn.SetWriteDeadline(time.Now().Add(10*time.Second))
 
 	// Query to find records
+	fmt.Print("Query records ")
 	collection := client.Database(dbName).Collection(collectionName)
 	cur, err := collection.Find(context.Background(), bson.D{})
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		fmt.Print("Query failed: ", err)
+		log.Fatal(err)
+	}
 	defer cur.Close(context.Background())
+	fmt.Print("Query finished ")
 
 	// loop through database
 	i := 0
