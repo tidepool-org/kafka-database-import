@@ -108,20 +108,25 @@ func importDatabase() {
 		return
 	}
 
+	fmt.Println("Getting DB Client")
 	client := NewMongoStoreClient(mongoHost)
+	fmt.Println("Done getting DB Client")
 
 	// Open Kafka
+	fmt.Println("Opening connection to kafka")
 	conn, err := kafka.DialLeader(context.Background(), "tcp", hostStr, topic, partition)
+	fmt.Println("Done Opening connection to kafka")
 	if err != nil {
 		fmt.Printf("Error making connection: %s", err.Error())
 		return
 	}
 
 	// Write out html
+	fmt.Println("Setting write deadline")
 	conn.SetWriteDeadline(time.Now().Add(10*time.Second))
 
 	// Query to find records
-	fmt.Print("Query records ")
+	fmt.Println("Query records ")
 	collection := client.Database(dbName).Collection(collectionName)
 	cur, err := collection.Find(context.Background(), bson.D{})
 	if err != nil {
