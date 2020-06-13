@@ -96,7 +96,7 @@ func importDatabase() {
 	topic := "database"
 	partition := 0
 	host := "kafka-kafka-bootstrap.kafka.svc.cluster.local"
-	port := 9091
+	port := 9092
 	hostStr := fmt.Sprintf("%s:%d", host,port)
 	dbName := "data"
 	collectionName := "deviceData"
@@ -113,7 +113,7 @@ func importDatabase() {
 	fmt.Println("Done getting DB Client")
 
 	// Open Kafka
-	fmt.Println("Opening connection to kafka")
+	fmt.Println("Opening connection to kafka host: ", hostStr, topic, partition)
 	conn, err := kafka.DialLeader(context.Background(), "tcp", hostStr, topic, partition)
 	fmt.Println("Done Opening connection to kafka")
 	if err != nil {
