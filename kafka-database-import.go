@@ -168,7 +168,7 @@ func importDatabase() {
 func main() {
 	importDatabase()
 	// Hack - do not quit for now
-	fmt.Print("Sleeping until the end of time")
+	fmt.Println("Sleeping until the end of time")
 	for {
 		time.Sleep(10 * time.Second)
 	}
