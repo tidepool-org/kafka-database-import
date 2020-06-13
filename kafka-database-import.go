@@ -129,6 +129,7 @@ func importDatabase() {
 	// loop through database
 	i := 0
 	for cur.Next(context.Background()) {
+		fmt.Printf("Processing %d record: ", i)
 		// Only do first couple of records
 		if i > 4 {
 			break
@@ -139,6 +140,7 @@ func importDatabase() {
 		raw := cur.Current
 
 		if err := cur.Err(); err != nil {
+			fmt.Print("Error reading record: ", err)
 			break
 		}
 		// write to queue
@@ -147,6 +149,7 @@ func importDatabase() {
 		)
 		fmt.Printf("doc: %s\n", raw)
 	}
+	fmt.Print("Done reading records")
 
 	conn.Close()
 
@@ -155,6 +158,7 @@ func importDatabase() {
 func main() {
 	importDatabase()
 	// Hack - do not quit for now
+	fmt.Print("Sleeping until the end of time")
 	for {
 		time.Sleep(10 * time.Second)
 	}
