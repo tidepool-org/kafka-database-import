@@ -101,6 +101,9 @@ func importDatabase() {
 	dbName := "data"
 	collectionName := "deviceData"
 
+	// Wait for networking
+	fmt.Println("Waiting for networking")
+	time.Sleep(30 * time.Second)
 	// Open Kafka
 	fmt.Println("Opening connection to kafka host: ", hostStr, topic, partition)
 	conn, err := kafka.DialLeader(context.Background(), "tcp", hostStr, topic, partition)
