@@ -101,6 +101,16 @@ func importDatabase() {
 	dbName := "data"
 	collectionName := "deviceData"
 
+	// Open Kafka
+	fmt.Println("Opening connection to kafka host: ", hostStr, topic, partition)
+	conn, err := kafka.DialLeader(context.Background(), "tcp", hostStr, topic, partition)
+
+	fmt.Println("Done Opening connection to kafka")
+	if err != nil {
+		fmt.Printf("Error making connection: %s", err.Error())
+		return
+	}
+
 	// Open Database
 	mongoHost, err := GetConnectionString()
 	if err != nil {
@@ -112,14 +122,6 @@ func importDatabase() {
 	client := NewMongoStoreClient(mongoHost)
 	fmt.Println("Done getting DB Client")
 
-	// Open Kafka
-	fmt.Println("Opening connection to kafka host: ", hostStr, topic, partition)
-	conn, err := kafka.DialLeader(context.Background(), "tcp", hostStr, topic, partition)
-	fmt.Println("Done Opening connection to kafka")
-	if err != nil {
-		fmt.Printf("Error making connection: %s", err.Error())
-		return
-	}
 
 	// Write out html
 	fmt.Println("Setting write deadline")
