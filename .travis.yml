@@ -1,0 +1,28 @@
+sudo: false
+
+env:
+  - GO111MODULE=on
+
+language: go
+
+go:
+  - 1.13.10
+
+before_install:
+  sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2930ADAE8CAF5059EE73BB4B58712A2291FA4AD5;
+  sudo apt-get update;
+  npm install -g snyk
+
+addons:
+  artifacts:
+    paths:
+      - $(git ls-files -o deploy/*/*-*.tar.gz | tr "\n" ":")
+    target_paths:
+      - /
+
+script:
+  - ./test.sh
+  - ./artifact.sh
+
+services:
+  - docker
