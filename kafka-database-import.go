@@ -96,7 +96,7 @@ func importDatabase() {
 	topic := "database"
 	partition := 0
 	host := "kafka-kafka-bootstrap.kafka.svc.cluster.local"
-	port := 9092
+	port := 9091
 	hostStr := fmt.Sprintf("%s:%d", host,port)
 	dbName := "data"
 	collectionName := "deviceData"
