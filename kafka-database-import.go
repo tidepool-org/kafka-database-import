@@ -94,7 +94,7 @@ func GetConnectionString() (string, error) {
 
 func importDatabase() {
 	topic := "data"
-	partition := 0
+	partition := 1
 	host := "kafka-kafka-bootstrap.kafka.svc.cluster.local"
 	port := 9092
 	hostStr := fmt.Sprintf("%s:%d", host,port)
