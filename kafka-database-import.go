@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/segmentio/kafka-go"
 	"go.mongodb.org/mongo-driver/bson"
@@ -146,7 +147,7 @@ func importDatabase() {
 	// loop through database
 	i := 0
 	for cur.Next(context.Background()) {
-		fmt.Printf("Processing %d record: ", i)
+		fmt.Printf("Processing %d record: \n", i)
 		// Only do first couple of records
 		if i > 4 {
 			break
@@ -163,7 +164,11 @@ func importDatabase() {
 		if err != nil {
 			log.Println("Error: ", err)
 		}
-		document := fmt.Sprintf("%+v\n", rec)
+		document, err := json.Marshal(rec)
+		if err != nil {
+			log.Println("Error Marshalling: ", err)
+		}
+
 
 		// write to queue
 		conn.WriteMessages(
@@ -175,7 +180,7 @@ func importDatabase() {
 
 	conn.Close()
 
-	fmt.Printf("Duration in seconds: %d", startTime.Sub(time.Now()).Seconds)
+	fmt.Printf("Duration in seconds: %d\n", time.Now().Sub(startTime).Seconds())
 
 }
 
