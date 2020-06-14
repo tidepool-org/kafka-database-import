@@ -101,12 +101,14 @@ func importDatabase() {
 	hostStr := fmt.Sprintf("%s:%d", host,port)
 	dbName := "data"
 	collectionName := "deviceData"
+	MaxRecs := 10000
 
-	startTime := time.Now()
 
 	// Wait for networking
 	fmt.Println("Waiting for networking")
 	time.Sleep(30 * time.Second)
+
+	startTime := time.Now()
 	// Open Kafka
 	fmt.Println("Opening connection to kafka host: ", hostStr, topic, partition)
 	conn, err := kafka.DialLeader(context.Background(), "tcp", hostStr, topic, partition)
@@ -149,7 +151,7 @@ func importDatabase() {
 	for cur.Next(context.Background()) {
 		fmt.Printf("Processing %d record: \n", i)
 		// Only do first couple of records
-		if i > 4 {
+		if i > MaxRecs {
 			break
 		}
 		i++
@@ -180,7 +182,7 @@ func importDatabase() {
 
 	conn.Close()
 
-	fmt.Printf("Duration in seconds: %d\n", time.Now().Sub(startTime).Seconds())
+	fmt.Printf("Duration in seconds: %f\n", time.Now().Sub(startTime).Seconds())
 
 }
 
