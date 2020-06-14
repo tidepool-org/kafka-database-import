@@ -101,6 +101,8 @@ func importDatabase() {
 	dbName := "data"
 	collectionName := "deviceData"
 
+	startTime := time.Now()
+
 	// Wait for networking
 	fmt.Println("Waiting for networking")
 	time.Sleep(30 * time.Second)
@@ -152,21 +154,28 @@ func importDatabase() {
 		i++
 
 		// Read record
-		raw := cur.Current
-
 		if err := cur.Err(); err != nil {
 			fmt.Print("Error reading record: ", err)
 			break
 		}
+		var rec bson.M
+		err = cur.Decode(&rec)
+		if err != nil {
+			log.Println("Error: ", err)
+		}
+		document := fmt.Sprintf("%+v\n", rec)
+
 		// write to queue
 		conn.WriteMessages(
-			kafka.Message{Value: raw},
+			kafka.Message{Value: []byte(document)},
 		)
-		fmt.Printf("doc: %s\n", raw)
+		fmt.Printf("doc: %s\n", document)
 	}
 	fmt.Print("Done reading records")
 
 	conn.Close()
+
+	fmt.Printf("Duration in seconds: %d", startTime.Sub(time.Now()).Seconds)
 
 }
 
