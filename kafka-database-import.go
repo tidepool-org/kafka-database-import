@@ -167,9 +167,7 @@ func importDatabase() {
 			log.Println("Error: ", err)
 		}
 
-		var rec map[string]interface{}
-		rec["data"] = data
-		rec["source"] = "database"
+		var rec = map[string]interface{}{"data": data, "source": "database"}
 		document, err := json.Marshal(rec)
 		if err != nil {
 			log.Println("Error Marshalling: ", err)
