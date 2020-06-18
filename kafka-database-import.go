@@ -101,7 +101,7 @@ func importDatabase() {
 	hostStr := fmt.Sprintf("%s:%d", host,port)
 	dbName := "data"
 	collectionName := "deviceData"
-	MaxRecs := 10
+	MaxRecs := 250000
 
 
 	// Wait for networking
@@ -159,18 +159,20 @@ func importDatabase() {
 		// Read record
 		if err := cur.Err(); err != nil {
 			fmt.Print("Error reading record: ", err)
-			break
+			continue
 		}
 		var data bson.M
 		err = cur.Decode(&data)
 		if err != nil {
 			log.Println("Error: ", err)
+			continue
 		}
 
 		var rec = map[string]interface{}{"data": data, "source": "database"}
 		document, err := json.Marshal(rec)
 		if err != nil {
 			log.Println("Error Marshalling: ", err)
+			continue
 		}
 
 
@@ -178,7 +180,9 @@ func importDatabase() {
 		conn.WriteMessages(
 			kafka.Message{Value: []byte(document)},
 		)
-		fmt.Printf("doc: %s\n", document)
+		if i % 1000 == 0{
+			fmt.Printf("index: %d, doc: %s\n", i, document)
+		}
 	}
 	fmt.Print("Done reading records")
 
