@@ -101,7 +101,7 @@ func importDatabase() {
 	hostStr := fmt.Sprintf("%s:%d", host,port)
 	dbName := "data"
 	collectionName := "deviceData"
-	MaxRecs := 10000
+	MaxRecs := 10
 
 
 	// Wait for networking
@@ -161,11 +161,15 @@ func importDatabase() {
 			fmt.Print("Error reading record: ", err)
 			break
 		}
-		var rec bson.M
-		err = cur.Decode(&rec)
+		var data bson.M
+		err = cur.Decode(&data)
 		if err != nil {
 			log.Println("Error: ", err)
 		}
+
+		var rec map[string]interface{}
+		rec["data"] = data
+		rec["source"] = "database"
 		document, err := json.Marshal(rec)
 		if err != nil {
 			log.Println("Error Marshalling: ", err)
