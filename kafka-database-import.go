@@ -133,7 +133,7 @@ func importDatabase() {
 
 	// Write out html
 	fmt.Println("Setting write deadline")
-	conn.SetWriteDeadline(time.Now().Add(10*time.Second))
+	conn.SetWriteDeadline(time.Now().Add(4000*time.Second))
 
 	// Query to find records
 	fmt.Println("Query records ")
