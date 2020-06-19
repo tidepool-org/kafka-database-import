@@ -149,7 +149,6 @@ func importDatabase() {
 	// loop through database
 	i := 0
 	for cur.Next(context.Background()) {
-		fmt.Printf("Processing %d record: \n", i)
 		// Only do first couple of records
 		if i > MaxRecs {
 			break
@@ -177,10 +176,15 @@ func importDatabase() {
 
 
 		// write to queue
-		conn.WriteMessages(
+		bytesWritten, err := conn.WriteMessages(
 			kafka.Message{Value: []byte(document)},
 		)
+		if err != nil {
+			fmt.Printf("Error processing %d record: \n", i)
+			log.Println("Error writing message: ", bytesWritten, "  error: ", err)
+		}
 		if i % 1000 == 0{
+			fmt.Printf("Processing %d record: \n", i)
 			fmt.Printf("index: %d, doc: %s\n", i, document)
 		}
 	}
