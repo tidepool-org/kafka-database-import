@@ -12,6 +12,7 @@ import (
 	// Official 'mongo-go-driver' packages
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
 )
 
 var (
@@ -93,20 +94,26 @@ func GetConnectionString() (string, error) {
 	return cs, nil
 }
 
+type UserFilter struct {
+	UserId       string          `bson:"userId" json:"userId"`
+	Partition    int64           `bson:"partition" json:"partition"`
+}
+
 func importDatabase() {
-	topic := "database"
+	topic, _ := os.LookupEnv("KAFKA_TOPIC")
 	partition := 0
-	host := "kafka-kafka-bootstrap.kafka.svc.cluster.local"
-	port := 9092
-	hostStr := fmt.Sprintf("%s:%d", host,port)
+	hostStr, _ := os.LookupEnv("KAFKA_BROKERS")
 	dbName := "data"
 	collectionName := "deviceData"
+
+	userDbName := "user"
+	userCollectionName := "userFilter"
 	MaxRecs := 250000
 
 
 	// Wait for networking
 	fmt.Println("Waiting for networking")
-	time.Sleep(30 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	startTime := time.Now()
 	// Open Kafka
@@ -118,6 +125,10 @@ func importDatabase() {
 		fmt.Printf("Error making connection: %s", err.Error())
 		return
 	}
+
+	// Write out html
+	fmt.Println("Setting write deadline")
+	conn.SetWriteDeadline(time.Now().Add(4000*time.Second))
 
 	// Open Database
 	mongoHost, err := GetConnectionString()
@@ -131,16 +142,34 @@ func importDatabase() {
 	fmt.Println("Done getting DB Client")
 
 
-	// Write out html
-	fmt.Println("Setting write deadline")
-	conn.SetWriteDeadline(time.Now().Add(4000*time.Second))
+	// Query to find user filter
+	var userFilter []UserFilter
+	fmt.Println("Retrieving user filter")
+	userCollection := client.Database(userDbName).Collection(userCollectionName)
+	userCur, err := userCollection.Find(context.Background(), bson.D{})
+	defer userCur.Close(context.Background())
+	if err != nil {
+		fmt.Print("Retrieving User Filter Query failed: ", err)
+		log.Fatal(err)
+	}
+	if err := userCur.All(context.Background(), &userFilter); err != nil {
+		fmt.Print("Retrieving User Filter Query failed: ", err)
+		log.Fatal(err)
+	}
+
+	var userIdArray []string
+	for _, rec := range userFilter {
+		userIdArray = append(userIdArray, rec.UserId)
+	}
+	fmt.Printf("User Filter Array: %v\n", userFilter)
+	fmt.Println("UserIdArray: ", userIdArray)
 
 	// Query to find records
 	fmt.Println("Query records ")
 	collection := client.Database(dbName).Collection(collectionName)
-	cur, err := collection.Find(context.Background(), bson.D{})
+	cur, err := collection.Find(context.Background(), bson.M{"userId": bson.M{"$in" : userIdArray}})
 	if err != nil {
-		fmt.Print("Query failed: ", err)
+		fmt.Print("Getting Records failed Query failed: ", err)
 		log.Fatal(err)
 	}
 	defer cur.Close(context.Background())
