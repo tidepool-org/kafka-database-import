@@ -167,7 +167,7 @@ func importDatabase() {
 	// Query to find records
 	fmt.Println("Query records ")
 	collection := client.Database(dbName).Collection(collectionName)
-	cur, err := collection.Find(context.Background(), bson.M{"userId": bson.M{"$in" : userIdArray}})
+	cur, err := collection.Find(context.Background(), bson.M{"_userId": bson.M{"$in" : userIdArray}})
 	if err != nil {
 		fmt.Print("Getting Records failed Query failed: ", err)
 		log.Fatal(err)
